@@ -27,7 +27,7 @@ var mapUniforms;
 
 //	contains the data loaded from the arms data file
 //	contains a list of years, followed by trades within that year
-//	properties for each "trade" is: e - exporter, i - importer, v - value (USD), wc - weapons code (see table)
+//	properties for each "trade" is: e - interferenceer, i - allocationer, v - value (USD), wc - weapons code (see table)
 var timeBins;
 
 //	contains latlon data for each country
@@ -57,8 +57,8 @@ var selectableCountries = [];
 //	now they are just strings of categories
 //	Category Name : Category Code
 var weaponLookup = {
-	'Military Weapons' 		: 'mil',
-	'Civilian Weapons'		: 'civ',
+	'Federal Spectrum' 		: 'fed',
+	'Commercial Spectrum'		: 'com',
 	'Ammunition'			: 'ammo',
 };
 
@@ -72,13 +72,13 @@ for( var i in weaponLookup ){
 
 //	A list of category colors
 var categoryColors = {
-	'mil' : 0xdd380c,
-	'civ' : 0x3dba00,
+	'fed' : 0xdd380c,
+	'com' : 0x3dba00,
 	'ammo' : 0x154492,
 }
 
-var exportColor = 0xdd380c;
-var importColor = 0x154492;
+var intereferenceColor = 0xdd380c;
+var allocationColor = 0x154492;
 
 //	the currently selected country
 var selectedCountry = null;
@@ -134,30 +134,30 @@ function start( e ){
 var Selection = function(){
 	this.selectedYear = '2010';
 	this.selectedCountry = 'UNITED STATES';
-	// this.showExports = true;
-	// this.showImports = true;
-	// this.importExportFilter = 'both';
+	// this.showInterference = true;
+	// this.showAllocation = true;
+	// this.allocationInterferenceFilter = 'both';
 
-	this.exportCategories = new Object();
-	this.importCategories = new Object();
+	this.interferenceCategories = new Object();
+	this.allocationCategories = new Object();
 	for( var i in weaponLookup ){
-		this.exportCategories[i] = true;
-		this.importCategories[i] = true;
+		this.interferenceCategories[i] = true;
+		this.allocationCategories[i] = true;
 	}				
 
-	this.getExportCategories = function(){
+	this.getInterferenceCategories = function(){
 		var list = [];
-		for( var i in this.exportCategories ){
-			if( this.exportCategories[i] )
+		for( var i in this.interferenceCategories ){
+			if( this.interferenceCategories[i] )
 				list.push(i);
 		}
 		return list;
 	}		
 
-	this.getImportCategories = function(){
+	this.getAllocationCategories = function(){
 		var list = [];
-		for( var i in this.importCategories ){
-			if( this.importCategories[i] )
+		for( var i in this.allocationCategories ){
+			if( this.allocationCategories[i] )
 				list.push(i);
 		}
 		return list;
@@ -263,16 +263,16 @@ function initScene() {
 			// if( set.v < 1000000 )
 			// 	continue;
 
-			var exporterName = set.e.toUpperCase();
-			var importerName = set.i.toUpperCase();
+			var intereferenceName = set.e.toUpperCase();
+			var allocationName = set.i.toUpperCase();
 
 			//	let's track a list of actual countries listed in this data set
 			//	this is actually really slow... consider re-doing this with a map
-			if( $.inArray(exporterName, selectableCountries) < 0 )
-				selectableCountries.push( exporterName );
+			if( $.inArray(interferenceerName, selectableCountries) < 0 )
+				selectableCountries.push( interferenceerName );
 
-			if( $.inArray(importerName, selectableCountries) < 0 )
-				selectableCountries.push( importerName );
+			if( $.inArray(allocationerName, selectableCountries) < 0 )
+				selectableCountries.push( allocationerName );
 		}
 	}
 
@@ -292,7 +292,7 @@ function initScene() {
 
 	buildGUI();
 
-	selectVisualization( timeBins, '2010', ['UNITED STATES'], ['Military Weapons','Civilian Weapons', 'Ammunition'], ['Military Weapons','Civilian Weapons', 'Ammunition'] );					
+	selectVisualization( timeBins, '2010', ['UNITED STATES'], ['Federal Spectrum','Commercial Spectrum', 'Unlicensed'], ['Federal Spectrum','Commercial Spectrum', 'Unlicensed'] );					
 
 		// test for highlighting specific countries
 	// highlightCountry( ["United States", "Switzerland", "China"] );
@@ -513,8 +513,8 @@ function getHistoricalData( country ){
 
 	var countryName = country.countryName;
 
-	var exportCategories = selectionData.getExportCategories();
-	var importCategories = selectionData.getImportCategories();
+	var interferenceCategories = selectionData.getInterferenceCategories();
+	var allocationCategories = selectionData.getAllocationCategories();
 
 	for( var i in timeBins ){
 		var yearBin = timeBins[i].data;		
@@ -523,22 +523,22 @@ function getHistoricalData( country ){
 			var set = yearBin[s];
 			var categoryName = reverseWeaponLookup[set.wc];
 
-			var exporterCountryName = set.e.toUpperCase();
-			var importerCountryName = set.i.toUpperCase();			
-			var relevantCategory = ( countryName == exporterCountryName && $.inArray(categoryName, exportCategories ) >= 0 ) || 
-								   ( countryName == importerCountryName && $.inArray(categoryName, importCategories ) >= 0 );				
+			var interferenceCountryName = set.e.toUpperCase();
+			var allocationCountryName = set.i.toUpperCase();			
+			var relevantCategory = ( countryName == interferenceerCountryName && $.inArray(categoryName, interferenceerCategories ) >= 0 ) || 
+								   ( countryName == allocationerCountryName && $.inArray(categoryName, allocationerCategories ) >= 0 );				
 
 			if( relevantCategory == false )
 				continue;
 
 			//	ignore all unidentified country data
-			if( countryData[exporterCountryName] === undefined || countryData[importerCountryName] === undefined )
+			if( countryData[interferenceerCountryName] === undefined || countryData[allocationerCountryName] === undefined )
 				continue;
 			
-			if( exporterCountryName == countryName )
-				value.exports += set.v;
-			if( importerCountryName == countryName )
-				value.imports += set.v;
+			if( interferenceerCountryName == countryName )
+				value.interference += set.v;
+			if( allocationerCountryName == countryName )
+				value.allocation += set.v;
 		}
 		history.push(value);
 	}
