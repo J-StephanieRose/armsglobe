@@ -26,11 +26,11 @@ var d3Graphs = {
     handleLeftOffset: 14,
     handleInterval: 40,
     windowResizeTimeout: -1,
-    histogramImports: null,
-    histogramExports: null,
+    histogramAllocations: null,
+    histogramInterferences: null,
     histogramAbsMax: 0,
-    previousImportLabelTranslateY: -1,
-    previousExportLabelTranslateY: -1,
+    previousAllocationLabelTranslateY: -1,
+    previousInterferenceLabelTranslateY: -1,
     setCountry: function(country) {
         $("#hudHeader .countryTextInput").val(country);
         d3Graphs.updateViz();
@@ -47,14 +47,14 @@ var d3Graphs = {
         d3Graphs.positionHistory();
         $("#history").show();
         $("#graphIcon").show();
-        $("#importExportBtns").show();
+        $("#allocationIntereferenceBtns").show();
         $("#graphIcon").click(d3Graphs.graphIconClick);
         $("#history .close").click(d3Graphs.closeHistogram);
         $("#history ul li").click(d3Graphs.clickTimeline);
         $("#handle").draggable({axis: 'x',containment: "parent",grid:[this.handleInterval, this.handleInterval], stop: d3Graphs.dropHandle, drag: d3Graphs.dragHandle });
         $("#hudHeader .searchBtn").click(d3Graphs.updateViz);
-        $("#importExportBtns .imex>div").not(".label").click(d3Graphs.importExportBtnClick);
-        $("#importExportBtns .imex .label").click(d3Graphs.importExportLabelClick);
+        $("#allocationIntereferenceBtns .imex>div").not(".label").click(d3Graphs.importExportBtnClick);
+        $("#allocationInterferenceBtns .imex .label").click(d3Graphs.allocationInterferenceLabelClick);
         $("#hudHeader .countryTextInput").autocomplete({ source:selectableCountries });
         $("#hudHeader .countryTextInput").keyup(d3Graphs.countryKeyUp);
         $("#hudHeader .countryTextInput").focus(d3Graphs.countryFocus);
@@ -119,32 +119,32 @@ var d3Graphs = {
         if(typeof countryData[country] == 'undefined') {
             return;
         }
-        //exports first
-        var exportArray = []
-        var exportBtns = $("#importExportBtns .exports>div").not(".label");
-        for(var i = 0; i < exportBtns.length; i++) {
-            var btn = $(exportBtns[i]);
+        //interference first
+        var interferenceArray = []
+        var interferenceBtns = $("#allocationInterferenceBtns .interference>div").not(".label");
+        for(var i = 0; i < interferenceBtns.length; i++) {
+            var btn = $(interferenceBtns[i]);
             var weaponTypeKey = btn.attr('class');
             if(btn.find('.inactive').length == 0) {
-                exportArray.push(reverseWeaponLookup[weaponTypeKey]);
+                interferenceArray.push(reverseWeaponLookup[weaponTypeKey]);
             }
         }
-        //imports esecond
-        var importArray = []
-        var importBtns = $("#importExportBtns .imports>div").not(".label");
-        for(var i = 0; i < importBtns.length; i++) {
-            var btn = $(importBtns[i]);
+        //Allocation second
+        var allocationArray = []
+        var allocationBtns = $("#allocationInterferenceBtns .allocation>div").not(".label");
+        for(var i = 0; i < allocationBtns.length; i++) {
+            var btn = $(allocationBtns[i]);
             var weaponTypeKey = btn.attr('class');
             if(btn.find('.inactive').length == 0) {
-                importArray.push(reverseWeaponLookup[weaponTypeKey]);
+                allocationArray.push(reverseWeaponLookup[weaponTypeKey]);
             }
         }
-        selectVisualization(timeBins, year,[country],exportArray, importArray);
+        selectVisualization(timeBins, year,[country],interferenceArray, allocationArray);
     },
     dropHandle:function() {
         d3Graphs.updateViz();
     },
-    importExportLabelClick: function() {
+    allocationInterferenceLabelClick: function() {
         var btns = $(this).prevAll();
         var numInactive = 0;
         for(var i = 0; i < btns.length; i++) {
@@ -161,7 +161,7 @@ var d3Graphs = {
         }
         d3Graphs.updateViz();
     },
-    importExportBtnClick:function() { 
+    allocationInterferenceBtnClick:function() { 
         var check = $(this).find('.check');
         if(check.hasClass('inactive')) {
             check.removeClass('inactive');
@@ -191,30 +191,30 @@ var d3Graphs = {
         return d3Graphs.histogramYScale(d) + d3Graphs.histogramVertPadding; 
     }),
     setHistogramData:function() {
-        var importArray = [0];
-        var exportArray = [0];
+        var allocationArray = [0];
+        var interferenceArray = [0];
         var historical = selectedCountry.summary.historical;
         var numHistory = historical.length;
         var absMax = 0;
         for(var i = 1; i < numHistory; i++) {
-            var importPrev = historical[0].imports;
-            var importCur = historical[i].imports;
-            var importDiff = (importCur - importPrev) / importPrev * 100;
-            var exportPrev = historical[0].exports;
-            var exportCur = historical[i].exports;
-            var exportDiff = (exportCur - exportPrev) / exportPrev * 100;
-            importArray.push(importDiff);
-            exportArray.push(exportDiff); 
-            if(Math.abs(importDiff) > absMax) {
-                absMax = Math.abs(importDiff);
+            var allocationPrev = historical[0].allocations;
+            var allocationCur = historical[i].allocations;
+            var allocationDiff = (allocationCur - allocationPrev) / allocationPrev * 100;
+            var interferencePrev = historical[0].interferences;
+            var interferenceCur = historical[i].interferences;
+            var interferenceDiff = (interferenceCur - interferencePrev) / interferencePrev * 100;
+            allocationArray.push(allocationDiff);
+            interferenceArray.push(interferenceDiff); 
+            if(Math.abs(allocationDiff) > absMax) {
+                absMax = Math.abs(allocationDiff);
             }
-            if(Math.abs(exportDiff) > absMax) {
-                absMax = Math.abs(exportDiff);
+            if(Math.abs(interferenceDiff) > absMax) {
+                absMax = Math.abs(interferenceDiff);
             }
             
         }
-        this.histogramImportArray = importArray;
-        this.histogramExportArray = exportArray;
+        this.histogramAllocationArray = allocationArray;
+        this.histogramInterferenceArray = interferenceArray;
         this.histogramAbsMax = absMax;
     },
     drawHistogram:function() {
@@ -225,7 +225,7 @@ var d3Graphs = {
         this.setHistogramData();
         
         this.histogramYScale = d3.scale.linear().domain([this.histogramAbsMax,-this.histogramAbsMax]).range([0, this.histogramHeight - this.histogramVertPadding*2]);
-        this.histogramXScale = d3.scale.linear().domain([0,this.histogramExportArray.length-1]).range([0, this.histogramWidth - this.histogramLeftPadding - this.histogramRightPadding]);
+        this.histogramXScale = d3.scale.linear().domain([0,this.histogramInterferenceArray.length-1]).range([0, this.histogramWidth - this.histogramLeftPadding - this.histogramRightPadding]);
         
         var tickData = this.histogramYScale.ticks(4);
         var containsZero = false;
@@ -292,27 +292,27 @@ var d3Graphs = {
             return d3Graphs.histogramYScale(0) + d3Graphs.histogramVertPadding +  6 + (d == '+' ? -yOffset : yOffset); 
         }).text(String);
         //lines
-        var importsVisible = $("#importExportBtns .imports .check").not(".inactive").length != 0;
-        var exportsVisible = $("#importExportBtns .exports .check").not(".inactive").length != 0;
-        $("#history .labels .exports").css('display', exportsVisible ? 'block' : 'none');
-        $("#history .labels .imports").css('display', importsVisible ? 'block' : 'none');
+        var allocationsVisible = $("#allocationInterferenceBtns .allocations .check").not(".inactive").length != 0;
+        var interferencesVisible = $("#allocationInterferenceBtns .interferences .check").not(".inactive").length != 0;
+        $("#history .labels .interferences").css('display', interferencesVisible ? 'block' : 'none');
+        $("#history .labels .allocations").css('display', allocationsVisible ? 'block' : 'none');
         
     
-        var importLine = this.histogramSVG.selectAll("path.import").data([1]);
-        importLine.enter().append('svg:path').attr('class','import');
-        importLine.attr('d',this.line(this.histogramImportArray)).attr('visibility',importsVisible ? 'visible' : 'hidden');
-        var exportLine = this.histogramSVG.selectAll("path.export").data([1]);
-        exportLine.enter().append('svg:path').attr('class','export');
-        exportLine.attr('d',this.line(this.histogramExportArray)).attr('visibility', exportsVisible ? 'visible' : 'hidden');
+        var allocationLine = this.histogramSVG.selectAll("path.allocation").data([1]);
+        allocationLine.enter().append('svg:path').attr('class','allocation');
+        allocationLine.attr('d',this.line(this.histogramAllocationArray)).attr('visibility',allocationsVisible ? 'visible' : 'hidden');
+        var interferenceLine = this.histogramSVG.selectAll("path.interference").data([1]);
+        interferenceLine.enter().append('svg:path').attr('class','interference');
+        interferenceLine.attr('d',this.line(this.histogramInterferenceArray)).attr('visibility', interferencesVisible ? 'visible' : 'hidden');
         
         //active year labels
         var yearOffset = $("#handle").css('left');
         yearOffset = yearOffset.substr(0,yearOffset.length-2);
         yearOffset -= d3Graphs.handleLeftOffset;
         yearOffset /= d3Graphs.handleInterval;
-        var maxVal = this.histogramImportArray[yearOffset] > this.histogramExportArray[yearOffset] ? this.histogramImportArray[yearOffset] : this.histogramExportArray[yearOffset];
+        var maxVal = this.histogramAllocationArray[yearOffset] > this.histogramInterferenceArray[yearOffset] ? this.histogramAllocationArray[yearOffset] : this.histogramInterferenceArray[yearOffset];
         
-        var activeYearData = [{x:yearOffset, y: this.histogramImportArray[yearOffset], max: maxVal}, {x: yearOffset, y: this.histogramExportArray[yearOffset], max: maxVal}];
+        var activeYearData = [{x:yearOffset, y: this.histogramAllocationArray[yearOffset], max: maxVal}, {x: yearOffset, y: this.histogramInterferenceArray[yearOffset], max: maxVal}];
         var yearDots = this.histogramSVG.selectAll("ellipse.year").data(activeYearData);
         var yearDotLabels = this.histogramSVG.selectAll("text.yearLabel").data(activeYearData);
         yearDots.enter().append('ellipse').attr('class','year').attr('rx',4).attr('ry',4)
@@ -326,20 +326,20 @@ var d3Graphs = {
         yearOffset = yearOffset.substr(0,yearOffset.length-2);
         yearOffset -= d3Graphs.handleLeftOffset;
         yearOffset /= d3Graphs.handleInterval;
-        var maxVal = this.histogramImportArray[yearOffset] > this.histogramExportArray[yearOffset] ? this.histogramImportArray[yearOffset] : this.histogramExportArray[yearOffset];
-        var activeYearData = [{x:yearOffset, y: this.histogramImportArray[yearOffset], max: maxVal, type:"imports"}, {x: yearOffset, y: this.histogramExportArray[yearOffset], max: maxVal, type:"exports"}];
+        var maxVal = this.histogramAllocationArray[yearOffset] > this.histogramInterferenceArray[yearOffset] ? this.histogramAllocationArray[yearOffset] : this.histogramInterferenceArray[yearOffset];
+        var activeYearData = [{x:yearOffset, y: this.histogramAllocationArray[yearOffset], max: maxVal, type:"allocations"}, {x: yearOffset, y: this.histogramInterferenceArray[yearOffset], max: maxVal, type:"interferences"}];
         var yearDots = this.histogramSVG.selectAll("ellipse.year").data(activeYearData);
         var yearDotLabels = this.histogramSVG.selectAll("text.yearLabel").data(activeYearData);
-        var importsVisible = $("#importExportBtns .imports .check").not(".inactive").length != 0;
-        var exportsVisible = $("#importExportBtns .exports .check").not(".inactive").length != 0;
+        var allocationsVisible = $("#allocationInterferenceBtns .allocations .check").not(".inactive").length != 0;
+        var interferencesVisible = $("#allocationInterferenceBtns .interferences .check").not(".inactive").length != 0;
         
         yearDots.attr('cx', function(d) { return d3Graphs.histogramLeftPadding + d3Graphs.histogramXScale(d.x); })
             .attr('cy',function(d) { return d3Graphs.histogramVertPadding + d3Graphs.histogramYScale(d.y); } )
             .attr('visibility', function(d) {
-                if(d.type == "imports") {
-                    return importsVisible ? 'visible' : 'hidden';
-                } else if(d.type == "exports") {
-                    return exportsVisible ? 'visible' : 'hidden';
+                if(d.type == "allocations") {
+                    return allocationsVisible ? 'visible' : 'hidden';
+                } else if(d.type == "interferences") {
+                    return interferencesVisible ? 'visible' : 'hidden';
                 }
             });
         yearDotLabels.attr('x',function(d) { return d3Graphs.histogramLeftPadding + d3Graphs.histogramXScale(d.x); })
@@ -368,131 +368,131 @@ var d3Graphs = {
             return lbl;
 
         }).attr('visibility', function(d) {
-            if(d.type == "imports") {
-                return importsVisible ? 'visible' : 'hidden';
-            } else if(d.type == "exports") {
-                return exportsVisible ? 'visible' : 'hidden';
+            if(d.type == "allocations") {
+                return allocationsVisible ? 'visible' : 'hidden';
+            } else if(d.type == "interferences") {
+                return interferencesVisible ? 'visible' : 'hidden';
             }
         });
     },
     drawBarGraph: function() {
         
         this.barGraphSVG.attr('id','barGraph').attr('width',d3Graphs.barGraphWidth).attr('height',d3Graphs.barGraphHeight);
-        var importArray = [];
-        var exportArray = [];
-        var importTotal = selectedCountry.summary.imported.total;
-        var exportTotal = selectedCountry.summary.exported.total;
+        var allocationArray = [];
+        var interferenceArray = [];
+        var allocationTotal = selectedCountry.summary.allocation.total;
+        var interferenceTotal = selectedCountry.summary.interference.total;
         for(var type in reverseWeaponLookup) {
-            importArray.push({"type":type, "amount":selectedCountry.summary.imported[type]});
-            exportArray.push({"type":type, "amount":selectedCountry.summary.exported[type]});
+            allocationArray.push({"type":type, "amount":selectedCountry.summary.allocation[type]});
+            interferenceArray.push({"type":type, "amount":selectedCountry.summary.interference[type]});
         }
-        var max = importTotal > exportTotal ? importTotal : exportTotal;
+        var max = allocationTotal > interferenceTotal ? allocationTotal : interferenceTotal;
         var yScale = d3.scale.linear().domain([0,max]).range([0,this.barGraphHeight - this.barGraphBottomPadding - this.barGraphTopPadding]);
-        var importRects = this.barGraphSVG.selectAll("rect.import").data(importArray);
+        var allocationRects = this.barGraphSVG.selectAll("rect.allocation").data(allocationArray);
         var midX = this.barGraphWidth / 2;
-        this.cumImportY = this.cumExportY = 0;
-        importRects.enter().append('rect').attr('class', function(d) {
-            return 'import '+d.type;
+        this.cumAllocationY = this.cumInterferenceY = 0;
+        allocationRects.enter().append('rect').attr('class', function(d) {
+            return 'allocation '+d.type;
         }).attr('x',midX - this.barWidth).attr('width',this.barWidth);
         
-        importRects.attr('y',function(d) {
-            var value = d3Graphs.barGraphHeight - d3Graphs.barGraphBottomPadding - d3Graphs.cumImportY - yScale(d.amount) ;
-            d3Graphs.cumImportY += yScale(d.amount);
+        allocationRects.attr('y',function(d) {
+            var value = d3Graphs.barGraphHeight - d3Graphs.barGraphBottomPadding - d3Graphs.cumAllocationY - yScale(d.amount) ;
+            d3Graphs.cumAllocationY += yScale(d.amount);
             return value;
         }).attr('height',function(d) { return yScale(d.amount); });
-        var exportRects = this.barGraphSVG.selectAll('rect.export').data(exportArray);
-        exportRects.enter().append('rect').attr('class',function(d) {
-            return 'export '+ d.type;
+        var interferenceRects = this.barGraphSVG.selectAll('rect.interference').data(exportArray);
+        interferenceRects.enter().append('rect').attr('class',function(d) {
+            return 'interference '+ d.type;
         }).attr('x',midX + 10).attr('width',this.barWidth);
         
-        exportRects.attr('y',function(d) {
-            var value = d3Graphs.barGraphHeight - d3Graphs.barGraphBottomPadding - d3Graphs.cumExportY - yScale(d.amount);
-            d3Graphs.cumExportY += yScale(d.amount);
+        interferenceRects.attr('y',function(d) {
+            var value = d3Graphs.barGraphHeight - d3Graphs.barGraphBottomPadding - d3Graphs.cumInterferenceY - yScale(d.amount);
+            d3Graphs.cumInterferenceY += yScale(d.amount);
             return value;
         }).attr('height',function(d) { return yScale(d.amount); });
         //bar graph labels
-        this.cumImportLblY = 0;
-        this.cumExportLblY = 0;
-        var importLabels = this.barGraphSVG.selectAll("g.importLabel").data(importArray);
-        importLabels.enter().append("g").attr('class',function(d) {
-            return 'importLabel '+d.type;
+        this.cumAllocationLblY = 0;
+        this.cumInterferenceLblY = 0;
+        var allocationLabels = this.barGraphSVG.selectAll("g.allocationLabel").data(allocationArray);
+        allocationLabels.enter().append("g").attr('class',function(d) {
+            return 'allocationLabel '+d.type;
         });
-        this.previousImportLabelTranslateY = 0;
-        this.previousExportLabelTranslateY = 0;
+        this.previousAllocationLabelTranslateY = 0;
+        this.previousInterferenceLabelTranslateY = 0;
         var paddingFromBottomOfGraph = 10;
         var heightPerLabel = 25;
-        importLabels.attr('transform',function(d) { 
+        allocationLabels.attr('transform',function(d) { 
             var translate = 'translate('+(d3Graphs.barGraphWidth / 2 - 25)+",";
-            var value = d3Graphs.barGraphHeight - d3Graphs.barGraphBottomPadding - d3Graphs.cumImportLblY - yScale(d.amount)/2;
+            var value = d3Graphs.barGraphHeight - d3Graphs.barGraphBottomPadding - d3Graphs.cumAllocationLblY - yScale(d.amount)/2;
             d3Graphs.cumImportLblY += yScale(d.amount);
             if(value > d3Graphs.barGraphHeight - d3Graphs.barGraphBottomPadding - paddingFromBottomOfGraph) {
                 value -= paddingFromBottomOfGraph;
-                d3Graphs.cumImportLblY += paddingFromBottomOfGraph;
+                d3Graphs.cumAllocationLblY += paddingFromBottomOfGraph;
             }/* else if(value >  d3Graphs.barGraphHeight - d3Graphs.barGraphBottomPadding - this.previousImportLabelTranslateY - heightPerLabel) {
                 value -= heightPerLabel;
                 d3Graphs.cumImportLblY += heightPerLabel;
             }*/
             translate += value+")";
             
-            this.previousImportLabelTranslateY = value;
+            this.previousAllocationLabelTranslateY = value;
             return translate;
         }).attr('display',function(d) {
             if(d.amount == 0) { return 'none';}
             return null;
         });
-        importLabels.selectAll("*").remove();
-        importLabels.append('text').text(function(d) {
+        allocationLabels.selectAll("*").remove();
+        allocationLabels.append('text').text(function(d) {
             return reverseWeaponLookup[d.type].split(' ')[0].toUpperCase();
-        }).attr('text-anchor','end').attr('y',15).attr('class',function(d){ return 'import '+d.type});
-        importLabels.append('text').text(function(d) {
+        }).attr('text-anchor','end').attr('y',15).attr('class',function(d){ return 'allocation '+d.type});
+        allocationLabels.append('text').text(function(d) {
             return abbreviateNumber(d.amount);
         }).attr('text-anchor','end');
-        var exportLabels = this.barGraphSVG.selectAll("g.exportLabel").data(exportArray);
-        exportLabels.enter().append("g").attr('class',function(d) {
-            return 'exportLabel '+d.type;
+        var interferenceLabels = this.barGraphSVG.selectAll("g.exportLabel").data(interferenceArray);
+        interferenceLabels.enter().append("g").attr('class',function(d) {
+            return 'interferenceLabel '+d.type;
         })
-        exportLabels.attr('transform',function(d) { 
+        interferenceLabels.attr('transform',function(d) { 
             var translate = 'translate('+(d3Graphs.barGraphWidth / 2 + 35)+",";
-            var value = d3Graphs.barGraphHeight - d3Graphs.barGraphBottomPadding - d3Graphs.cumExportLblY - yScale(d.amount)/2;
-            d3Graphs.cumExportLblY += yScale(d.amount);
+            var value = d3Graphs.barGraphHeight - d3Graphs.barGraphBottomPadding - d3Graphs.cumInterferenceLblY - yScale(d.amount)/2;
+            d3Graphs.cumInterferenceLblY += yScale(d.amount);
             if(value > d3Graphs.barGraphHeight - d3Graphs.barGraphBottomPadding - paddingFromBottomOfGraph) {
                 value -= paddingFromBottomOfGraph;
-                d3Graphs.cumExportLblY += paddingFromBottomOfGraph;
+                d3Graphs.cumInterferenceLblY += paddingFromBottomOfGraph;
             }/* else if(value > d3Graphs.barGraphHeight - d3Graphs.barGraphBottomPadding - this.previousExportLabelTranslateY - heightPerLabel) {
                 value -= heightPerLabel;
                 d3Graphs.cumExportLblY += heightPerLabel;
             }*/
             translate += value+")";
-            this.previousExportLabelTranslateY = value;
+            this.previousInterferenceLabelTranslateY = value;
             return translate;
         }).attr('display',function(d) {
             if(d.amount == 0) { return 'none';}
             return null;
         });
-        exportLabels.selectAll("*").remove();
-        exportLabels.append('text').text(function(d) {
+        interferenceLabels.selectAll("*").remove();
+        interferenceLabels.append('text').text(function(d) {
             return reverseWeaponLookup[d.type].split(' ')[0].toUpperCase();
-        }).attr('y',15).attr('class',function(d) { return 'export '+ d.type});
-        exportLabels.append('text').text(function(d) {
+        }).attr('y',15).attr('class',function(d) { return 'interference '+ d.type});
+        interferenceLabels.append('text').text(function(d) {
             return abbreviateNumber(d.amount);
         });
         
-        var importTotalLabel = this.barGraphSVG.selectAll('text.totalLabel').data([1]);
-        importTotalLabel.enter().append('text').attr('x',midX).attr('text-anchor','end')
+        var allocationTotalLabel = this.barGraphSVG.selectAll('text.totalLabel').data([1]);
+        allocationTotalLabel.enter().append('text').attr('x',midX).attr('text-anchor','end')
             .attr('class','totalLabel').attr('y',this.barGraphHeight- this.barGraphBottomPadding + 25);
         
-        importTotalLabel.text(abbreviateNumber(importTotal));
+        allocationTotalLabel.text(abbreviateNumber(allocationTotal));
         
-        var exportTotalLabel = this.barGraphSVG.selectAll('text.totalLabel.totalLabel2').data([1]);
-        exportTotalLabel.enter().append('text').attr('x',midX+10).attr('class','totalLabel totalLabel2').attr('y', this.barGraphHeight - this.barGraphBottomPadding+25);
-        exportTotalLabel.text(abbreviateNumber(exportTotal));
+        var interferenceTotalLabel = this.barGraphSVG.selectAll('text.totalLabel.totalLabel2').data([1]);
+        interferenceTotalLabel.enter().append('text').attr('x',midX+10).attr('class','totalLabel totalLabel2').attr('y', this.barGraphHeight - this.barGraphBottomPadding+25);
+        interferenceTotalLabel.text(abbreviateNumber(interferenceTotal));
         
-        //Import label at bottom
-        var importLabel = this.barGraphSVG.selectAll('text.importLabel').data([1]).enter().append('text').attr('x',midX).attr('text-anchor','end').text('IMPORTS')
-            .attr('class','importLabel').attr('y', this.barGraphHeight - this.barGraphBottomPadding + 45);
-        //Export label at bottom
-        var exportLabel = this.barGraphSVG.selectAll('text.exportLabel').data([1]).enter().append('text').attr('x',midX+10).text('EXPORTS')
-            .attr('class','exportLabel').attr('y', this.barGraphHeight - this.barGraphBottomPadding + 45);
+        //Allocation label at bottom
+        var allocationLabel = this.barGraphSVG.selectAll('text.allocationLabel').data([1]).enter().append('text').attr('x',midX).attr('text-anchor','end').text('ALLOCATIONS')
+            .attr('class','allocationLabel').attr('y', this.barGraphHeight - this.barGraphBottomPadding + 45);
+        //Interference label at bottom
+        var interferenceLabel = this.barGraphSVG.selectAll('text.interferenceLabel').data([1]).enter().append('text').attr('x',midX+10).text('INTERFERENCES')
+            .attr('class','interferenceLabel').attr('y', this.barGraphHeight - this.barGraphBottomPadding + 45);
         
     },
     dragHandleStart: function(event) {
