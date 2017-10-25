@@ -214,7 +214,7 @@ Elements to control the title and country selector
 	font-family: 			'RopaSans';
 	text-transform:          uppercase;
 }
-#hudButtons .armsBtn {
+#hudButtons .specBtn {
     float: right;
     background: 			#333333;
     padding: 				3px 10px 2px;
@@ -226,7 +226,7 @@ Elements to control the title and country selector
 	margin-right: 			0px;
 	opacity:                0.9;
 }
-#hudButtons .armsBtn:hover {
+#hudButtons .specBtn:hover {
     opacity: 1;
 }
 #hudButtons .aboutBtn {
@@ -278,25 +278,25 @@ Bar graph on left
     left:-7px;
     opacity: 0.9;
 }
-#barGraph .import.ammo {
+#barGraph .allocation.ammo {
 	fill: 					#44B2D4;
 }
-#barGraph .import.civ {
+#barGraph .allocation.com {
 	fill: 					#4679C1;
 }
-#barGraph .import.mil {
+#barGraph .allocation.fed {
 	fill:					#1658B2;
 }
-#barGraph .export.ammo {
+#barGraph .interference.ammo {
 	fill: 					#FFA90B;
 }
-#barGraph .export.civ {
+#barGraph .interference.com {
 	fill: 					#FF7018;
 }
-#barGraph .export.mil {
+#barGraph .interference.fed {
 	fill:					#E83E0A;
 }
-#barGraph .importLabel text,#barGraph .exportLabel text {
+#barGraph .allocationLabel text,#barGraph .interferenceLabel text {
 	fill: 					white;
     font-family:			Roboto;
 }
@@ -305,12 +305,12 @@ Bar graph on left
     font-family:			Roboto;
     font-size: 				23px;
 }
-#barGraph .exportLabel {
+#barGraph .interferenceLabel {
     font-family: 			Roboto;
     font-size: 				14px;
     fill: 					#FFA90B;
 }
-#barGraph .importLabel {
+#barGraph .allocationLabel {
     font-family: 			Roboto;
     font-size: 				14px;
     fill: 					#44B2D4;
@@ -380,14 +380,14 @@ Bar graph on left
     float: left;
     margin-top: 10px;
 }
-#history .labels .imports {
+#history .labels .allocation {
     float: right;
     font-family: Roboto;
     font-size: 14px;
     color:#70B4CB;
     margin-top: 10px;
 }
-#history .labels .exports {
+#history .labels .interference {
     float: right;
     font-family: Roboto;
     font-size: 14px;
@@ -399,10 +399,10 @@ Bar graph on left
     fill: none;
     stroke-width: 2px;
 }
-#histogram .export {
+#histogram .interference {
     stroke:         #FFA90B;
 }
-#histogram .import {
+#histogram .allocation {
     stroke:         #44B2D4;
 }
 #histogram .tick {
@@ -425,38 +425,38 @@ Bar graph on left
     fill: #fff;
 }
 
-/* import export buttons (bottom right)*/
-#importExportBtns {
+/* allocation interference buttons (bottom right)*/
+#allocationInterferenceBtns {
     width:                  298px;
     position:               absolute;
     bottom:                 0px;
     color:                  white;
     display:                none;
 }
-#importExportBtns>div>div {
+#allocationInterferenceBtns>div>div {
     float:                  left;
     width:                  60px;
     text-align:             center;
     height:                 28px;
 }
-#importExportBtns .imex>div {
+#allocationInterferenceBtns .imex>div {
     background:             #262626;
 }
-#importExportBtns .typeLabels div {
+#allocationInterferenceBtns .typeLabels div {
     font-family:            'Roboto';
     font-size:              13px;
     text-transform:         uppercase;
     margin-bottom:-12px;
 }
 
-#importExportBtns .imex>div {
+#allocationInterferenceBtns .imex>div {
 	cursor: pointer;
 	opacity: 0.9;
 }
-#importExportBtns .imex>div:hover {
+#allocationInterferenceBtns .imex>div:hover {
     opacity: 1;
 }
-#importExportBtns>div>.label {
+#allocationInterferenceBtns>div>.label {
     width:              98px;
     height:             25px;
     text-transform:     uppercase;
@@ -467,58 +467,58 @@ Bar graph on left
     vertical-align:     middle;
     padding-top:        3px;
 }
-#importExportBtns .imports .label {
+#allocationInterferenceBtns .allocation .label {
     color:              #44B2D4;
 }
-#importExportBtns .exports .label {
+#allocationInterferenceBtns .interference .label {
     color:              #FFA90B;
 }
-#importExportBtns .imports {
+#allocationInterferenceBtns .allocation {
     margin-bottom:      5px;
 }
-#importExportBtns .mil, #importExportBtns .civ {
+#allocationInterferenceBtns .fed, #allocationInterferenceBtns .com {
     margin-right:       5px;
 }
-#importExportBtns .imex .check {
+#allocationInterferenceBtns .imex .check {
     width: 16px;
     height: 16px;
     background: #262626 url('importExportIcons.png') 0 0 no-repeat;
     margin: 6px auto;
 }
-#importExportBtns .imports .mil .check {
+#allocationInterferenceBtns .allocation .fed .check {
     background-position: 0px 0px;
 }
-#importExportBtns .imports .mil .check.inactive {
+#allocationInterferenceBtns .allocation .fed .check.inactive {
     background-position: 0px -16px;
 }
-#importExportBtns .imports .civ .check {
+#allocationInterferenceBtns .allocation .com .check {
     background-position: -16px 0px;
 }
-#importExportBtns .imports .civ .check.inactive {
+#allocationInterferenceBtns .allocation .com .check.inactive {
     background-position: -16px -16px;
 }
-#importExportBtns .imports .ammo .check {
+#allocationInterferenceBtns .allocation .ammo .check {
     background-position: -32px 0px;
 }
-#importExportBtns .imports .ammo .check.inactive {
+#allocationInterferenceBtns .allocation .ammo .check.inactive {
     background-position: -32px -16px;
 }
-#importExportBtns .exports .mil .check {
+#allocationInterferenceBtns .interference .fed .check {
     background-position: -48px 0px;
 }
-#importExportBtns .exports .mil .check.inactive {
+#allocationInterferenceBtns .interference .fed .check.inactive {
     background-position: -48px -16px;
 }
-#importExportBtns .exports .civ .check {
+#allocatoionInterferenxeBtns .interference .com .check {
     background-position: -64px 0px;
 }
-#importExportBtns .exports .civ .check.inactive {
+#allocationInterferenceBtns .interference .com .check.inactive {
     background-position: -64px -16px;
 }
-#importExportBtns .exports .ammo .check {
+#allocationInterferenceBtns .interference .ammo .check {
     background-position: -80px 0px;
 }
-#importExportBtns .exports .ammo .check.inactive {
+#allocationInterferenceBtns .interference .ammo .check.inactive {
     background-position: -80px -16px;
 }
 
@@ -583,19 +583,19 @@ Bar graph on left
 
 /* Small size */
 @media all and (max-width: 1395px) {
-    #importExportBtns {
+    #allocationInterferenceBtns {
         width: 187px;
     }
-    #importExportBtns>div>div {
+    #allocationInterferenceBtns>div>div {
         width: 23px;
     }
-    #importExportBtns .imex>div {
+    #allocationInterferenceBtns .imex>div {
         background: transparent;
     }
-    #importExportBtns .imex .label {
+    #allocationInterferenceBtns .imex .label {
         background: #262626;
     }
-    #importExportBtns .typeLabels div {
+    #allocationInterferenceBtns .typeLabels div {
         font-size: 12px;
         -webkit-transform:rotate(323deg);
         -moz-transform:rotate(323deg);
@@ -604,13 +604,13 @@ Bar graph on left
         margin-top: -2px;
     }
     
-    #importExportBtns .typeLabels .mil {
+    #allocationInterferenceBtns .typeLabels .fed {
         margin-left: 8px;
     }
-    #importExportBtns .typeLabels .civ {
+    #allocationInterferenceBtns .typeLabels .com {
         margin-left: 2px;
     }
-    #importExportBtns .typeLabels .ammo {
+    #allocationInterferenceBtns .typeLabels .ammo {
         margin-left: -1px;
     }
 }
